@@ -1,0 +1,19 @@
+{
+  "name": "chaparral",
+  "version": "1.0.0",
+  "description": "Node static site generator",
+  "main": "entry.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "build": "node entry.js",
+    "start": "http-server public",
+    "clean": "node entry.js clean"
+  },
+  "author": "",
+  "license": "ISC",
+  "dependencies": {
+    "http-server": "^0.10.0",
+    "pug": "^2.0.0-rc.4",
+    "rimraf": "^2.6.2"
+  }
+}
