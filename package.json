@@ -16,7 +16,8 @@
     "colors": "^1.1.2",
     "http-server": "^0.10.0",
     "pug": "^2.0.0-rc.4",
-    "rimraf": "^2.6.2"
+    "rimraf": "^2.6.2",
+    "showdown": "^1.7.4"
   },
   "devDependencies": {
     "eslint": "^4.7.0"

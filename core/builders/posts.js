@@ -2,6 +2,8 @@ const fs = require('fs');
 const util = require('util');
 const pug = require('pug');
 const rimraf = require('rimraf');
+const showdown  = require('showdown');
+const mdConverter = new showdown.Converter();
 
 const POST_PATH = 'posts';
 const DESTINATION_PATH = 'public';
@@ -51,6 +53,9 @@ class PostBuilder {
 
     let readFile = util.promisify(fs.readFile);
     let srcContents = await readFile(POST_PATH + '/' + fileName, 'utf8');
+
+    srcContents = mdConverter.makeHtml(srcContents);
+
     let postContent = this.compileFileContents(srcContents);
 
     let writeFile = util.promisify(fs.writeFile);
