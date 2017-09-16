@@ -5,6 +5,7 @@ const rimraf = require('rimraf');
 
 const POST_PATH = 'posts';
 const DESTINATION_PATH = 'public';
+const TEMPLATES_PATH = 'templates/pages';
 
 class PostBuilder {
   clean() {
@@ -16,15 +17,15 @@ class PostBuilder {
   }
 
   cleanPosts() {
-    return new Promise((resolve, reject) => {
-      rimraf('./public/*', () => {
+    return new Promise((resolve) => {
+      rimraf(DESTINATION_PATH + '/*', () => {
         resolve();
       });
     });
   }
 
   async createDestinationFolder(destinationPath, fileName) {
-    var destinationFolderName = this.getFolderNameFromFileName(fileName);
+    const destinationFolderName = this.getFolderNameFromFileName(fileName);
     const mkdir = util.promisify(fs.mkdir);
     await mkdir(destinationPath + '/' + destinationFolderName);
 
@@ -58,7 +59,7 @@ class PostBuilder {
   }
 
   compileFileContents(srcContents) {
-    const postTemplate = pug.compileFile('templates/pages/post.pug');
+    const postTemplate = pug.compileFile(TEMPLATES_PATH + '/post.pug');
     return postTemplate({
       postContent: srcContents
     });

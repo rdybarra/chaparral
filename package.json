@@ -7,13 +7,18 @@
     "test": "echo \"Error: no test specified\" && exit 1",
     "build": "node entry.js",
     "start": "http-server public",
-    "clean": "node entry.js clean"
+    "clean": "node entry.js clean",
+    "lint": "eslint --config .eslintrc.json core/** entry.js"
   },
   "author": "",
   "license": "ISC",
   "dependencies": {
+    "colors": "^1.1.2",
     "http-server": "^0.10.0",
     "pug": "^2.0.0-rc.4",
     "rimraf": "^2.6.2"
+  },
+  "devDependencies": {
+    "eslint": "^4.7.0"
   }
 }

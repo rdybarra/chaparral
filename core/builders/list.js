@@ -5,15 +5,16 @@ const rimraf = require('rimraf');
 
 const POST_PATH = 'posts';
 const DESTINATION_PATH = 'public';
+const TEMPLATES_PATH = 'templates/pages';
 
-class listBuilder {
+class ListBuilder {
 
   clean() {
     return this.cleanList();
   }
 
   cleanList() {
-    return new Promise((resolve, reject) => {
+    return new Promise((resolve) => {
       rimraf('./public/index.html', resolve);
     });
   }
@@ -22,7 +23,7 @@ class listBuilder {
     let readdir = util.promisify(fs.readdir);
     let fileNames = await readdir(POST_PATH);
 
-    const homeTemplate = pug.compileFile('./templates/pages/home.pug');
+    const homeTemplate = pug.compileFile(TEMPLATES_PATH + '/home.pug');
     let list = homeTemplate({
       posts: fileNames
     });
@@ -32,4 +33,4 @@ class listBuilder {
   }
 }
 
-module.exports = new listBuilder();
+module.exports = new ListBuilder();
