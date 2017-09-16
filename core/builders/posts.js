@@ -1,6 +1,10 @@
 const fs = require('fs');
+const util = require('util');
 const pug = require('pug');
 const rimraf = require('rimraf');
+
+const POST_PATH = 'posts';
+const DESTINATION_PATH = 'public';
 
 class PostBuilder {
   clean() {
@@ -8,12 +12,7 @@ class PostBuilder {
   }
 
   build() {
-    return new Promise((resolve, reject) => {
-      this.cleanPosts()
-        .then(this.createPostPages.bind(this))
-        .then(resolve)
-        .catch(reject);
-    });
+    return this.createPostPages();
   }
 
   cleanPosts() {
@@ -24,40 +23,44 @@ class PostBuilder {
     });
   }
 
-  createPostPages() {
-    var path = 'posts';
-    var destinationPath = 'public';
-    var _this = this;
+  async createDestinationFolder(destinationPath, fileName) {
+    var destinationFolderName = this.getFolderNameFromFileName(fileName);
+    const mkdir = util.promisify(fs.mkdir);
+    await mkdir(destinationPath + '/' + destinationFolderName);
 
-    fs.readdir(path, (err, fileNames) => {
+    return destinationFolderName;
+  }
 
-      fileNames.forEach((fileName) => {
-        var destinationFolderName = _this.getFolderNameFromFileName(fileName);
-        fs.mkdirSync(destinationPath + '/' + destinationFolderName);
+  async createPostPages() {
+    let promiseArray = [];
+    const readdir = util.promisify(fs.readdir);
+    let fileNames = await readdir(POST_PATH);
 
-        var fileDestination = destinationPath + '/' + destinationFolderName + '/index.html';
+    fileNames.forEach((fileName) => {
+      promiseArray.push(this.generatePostFromFile(fileName));
+    });
 
+    await Promise.all(promiseArray);
+  }
 
-        const postTemplate = pug.compileFile('templates/pages/post.pug');
-        fs.readFile(path + '/' + fileName, 'utf8', (err, postContent) => {
-          console.log(postContent);
-          if (err) throw err;
-          const post = postTemplate({
-            postContent: postContent
-          });
+  async generatePostFromFile(fileName) {
+    let destinationFolderName = await this.createDestinationFolder(DESTINATION_PATH, fileName);
 
-          console.log(post);
+    let fullPathToTargetFile = DESTINATION_PATH + '/' + destinationFolderName + '/index.html';
 
-          fs.writeFile(fileDestination, post, function(err) {
-            if(err) {
-              return console.log(err);
-          }
+    let readFile = util.promisify(fs.readFile);
+    let srcContents = await readFile(POST_PATH + '/' + fileName, 'utf8');
+    let postContent = this.compileFileContents(srcContents);
 
-          console.log("The file was saved!");
-          });
-        });
+    let writeFile = util.promisify(fs.writeFile);
 
-      });
+    return await writeFile(fullPathToTargetFile, postContent);
+  }
+
+  compileFileContents(srcContents) {
+    const postTemplate = pug.compileFile('templates/pages/post.pug');
+    return postTemplate({
+      postContent: srcContents
     });
   }
 

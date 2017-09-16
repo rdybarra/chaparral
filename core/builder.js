@@ -4,8 +4,15 @@ const listBuilder = require('./builders/list.js');
 builder = {
   buildAll: function() {
     let promiseArray = [];
-    promiseArray.push(postBuilder.build());
     promiseArray.push(listBuilder.build());
+    promiseArray.push(postBuilder.build());
+
+    // return Promise.all(promiseArray).then((done) => {
+    //   console.log('Build complete');
+    // }).catch((error) => {
+    //   console.error('There was problem building files.');
+    //   console.error(error);
+    // });
 
     return Promise.all(promiseArray);
   },
