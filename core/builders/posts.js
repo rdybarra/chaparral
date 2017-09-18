@@ -9,13 +9,14 @@ const POST_PATH = 'posts';
 const DESTINATION_PATH = 'public';
 const TEMPLATES_PATH = 'templates/pages';
 
+const mkdir = util.promisify(fs.mkdir);
+const readFile = util.promisify(fs.readFile);
+const readdir = util.promisify(fs.readdir);
+const writeFile = util.promisify(fs.writeFile);
+
 class PostBuilder {
   clean() {
     return this.cleanPosts();
-  }
-
-  build() {
-    return this.createPostPages();
   }
 
   cleanPosts() {
@@ -26,52 +27,46 @@ class PostBuilder {
     });
   }
 
-  async createDestinationFolder(destinationPath, fileName) {
-    const destinationFolderName = this.getFolderNameFromFileName(fileName);
-    const mkdir = util.promisify(fs.mkdir);
-    await mkdir(destinationPath + '/' + destinationFolderName);
-
-    return destinationFolderName;
+  build() {
+    return this.createPostPages();
   }
 
   async createPostPages() {
     let promiseArray = [];
-    const readdir = util.promisify(fs.readdir);
-    let fileNames = await readdir(POST_PATH);
+    let postFolders = await readdir(POST_PATH);
 
-    fileNames.forEach((fileName) => {
-      promiseArray.push(this.generatePostFromFile(fileName));
+    postFolders.forEach((postFolder) => {
+      promiseArray.push(this.createPostPage(postFolder));
     });
 
-    await Promise.all(promiseArray);
+    return Promise.all(promiseArray);
   }
 
-  async generatePostFromFile(fileName) {
-    let destinationFolderName = await this.createDestinationFolder(DESTINATION_PATH, fileName);
+  async createPostPage(postFolder) {
+    let configFile = await readFile(POST_PATH + '/' + postFolder + '/config.json', 'utf8');
+    configFile = JSON.parse(configFile);
 
-    let fullPathToTargetFile = DESTINATION_PATH + '/' + destinationFolderName + '/index.html';
+    return this.buildPostAccordingToConfigFile(postFolder, configFile);
+  }
 
-    let readFile = util.promisify(fs.readFile);
-    let srcContents = await readFile(POST_PATH + '/' + fileName, 'utf8');
+  async buildPostAccordingToConfigFile(sourceDirectory, configFile) {
+    const destinationFolder = configFile.url;
+    await mkdir(DESTINATION_PATH + '/' + destinationFolder);
 
-    srcContents = mdConverter.makeHtml(srcContents);
+    const contentFile = configFile.content;
+    const fullPathToTargetFile = DESTINATION_PATH + '/' + destinationFolder + '/index.html';
+    const srcContents = await readFile(POST_PATH + '/' + sourceDirectory + '/' + contentFile, 'utf8');
 
-    let postContent = this.compileFileContents(srcContents);
-
-    let writeFile = util.promisify(fs.writeFile);
-
-    return await writeFile(fullPathToTargetFile, postContent);
+    return await writeFile(fullPathToTargetFile, this.compileFileContents(srcContents));
   }
 
   compileFileContents(srcContents) {
+    srcContents = mdConverter.makeHtml(srcContents);
+
     const postTemplate = pug.compileFile(TEMPLATES_PATH + '/post.pug');
     return postTemplate({
       postContent: srcContents
     });
-  }
-
-  getFolderNameFromFileName(fileName) {
-    return fileName.split('.')[0];
   }
 }
 

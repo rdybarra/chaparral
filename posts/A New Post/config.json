@@ -1,0 +1,10 @@
+{
+  "url": "a-new-post-ha",
+  "content": "a-new-post.md",
+  "title": "A new Post",
+  "category": "New",
+  "tags": [
+    "sample",
+    "tag"
+  ]
+}

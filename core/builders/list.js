@@ -7,6 +7,10 @@ const POST_PATH = 'posts';
 const DESTINATION_PATH = 'public';
 const TEMPLATES_PATH = 'templates/pages';
 
+const readdir = util.promisify(fs.readdir);
+const writeFile = util.promisify(fs.writeFile);
+const readFile = util.promisify(fs.readFile);
+
 class ListBuilder {
 
   clean() {
@@ -20,16 +24,38 @@ class ListBuilder {
   }
 
   async build() {
-    let readdir = util.promisify(fs.readdir);
-    let fileNames = await readdir(POST_PATH);
+    let configFiles = await this.getPostConfigFiles();
+
+    let postInfo = [];
+    configFiles.forEach((configFile) => {
+      postInfo.push({
+        title: configFile.title,
+        url: configFile.url
+      });
+    });
 
     const homeTemplate = pug.compileFile(TEMPLATES_PATH + '/home.pug');
     let list = homeTemplate({
-      posts: fileNames
+      posts: postInfo
     });
 
-    let writeFile = util.promisify(fs.writeFile);
     return await writeFile(DESTINATION_PATH + '/index.html', list);
+  }
+
+  async getPostConfigFiles() {
+    let promiseArray = [];
+    let postFolders = await readdir(POST_PATH);
+
+    postFolders.forEach((postFolder) => {
+      promiseArray.push(this.getConfigFileFromPostFolder(postFolder));
+    });
+
+    return Promise.all(promiseArray);
+  }
+
+  async getConfigFileFromPostFolder(postFolder) {
+    let configFile = await readFile(POST_PATH + '/' + postFolder + '/config.json', 'utf8');
+    return JSON.parse(configFile);
   }
 }
 
