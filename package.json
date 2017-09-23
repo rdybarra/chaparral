@@ -8,7 +8,8 @@
     "build": "node entry.js",
     "start": "http-server -o public",
     "clean": "node entry.js clean",
-    "lint": "eslint --config .eslintrc.json core/** entry.js"
+    "lint": "eslint --config .eslintrc.json core/** entry.js",
+    "precommit": "npm run lint"
   },
   "author": "",
   "license": "ISC",
@@ -23,6 +24,7 @@
     "showdown": "^1.7.4"
   },
   "devDependencies": {
-    "eslint": "^4.7.0"
+    "eslint": "^4.7.0",
+    "husky": "^0.14.3"
   }
 }
