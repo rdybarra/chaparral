@@ -2,16 +2,19 @@
   "name": "chaparral",
   "version": "1.0.0",
   "description": "Node static site generator",
-  "main": "entry.js",
+  "main": "chaparral.js",
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1",
     "build": "node entry.js",
-    "start": "http-server public",
+    "start": "http-server -o public",
     "clean": "node entry.js clean",
     "lint": "eslint --config .eslintrc.json core/** entry.js"
   },
   "author": "",
   "license": "ISC",
+  "bin": {
+    "chap": "./chaparral.js"
+  },
   "dependencies": {
     "colors": "^1.1.2",
     "http-server": "^0.10.0",
