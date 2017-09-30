@@ -1,6 +1,7 @@
 #!/usr/bin/env node
 
 const builder = require('./core/builder.js');
+const creator = require('./core/creator.js');
 const program = require('commander');
 const packageFile = require('./package.json');
 const exec = require('child_process').exec;
@@ -17,9 +18,15 @@ program
 
 program
   .command('clean')
-  .alias('c')
+  .alias('cl')
   .description('Clean the generated static site files.')
   .action(builder.cleanAll);
+
+program
+  .command('create <title>')
+  .alias('c')
+  .description('Create a new post. Put title in quotes.')
+  .action(creator.createPost.bind(creator));
 
 program
   .command('start')

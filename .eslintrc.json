@@ -21,7 +21,7 @@
 
       // Node
       "global-require": 2,
-      "no-sync": 1,
+      "no-sync": 0,
 
       // Stylistic
       "array-bracket-spacing": 2,
